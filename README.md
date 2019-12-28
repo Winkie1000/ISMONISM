@@ -33,3 +33,7 @@ This script/application uses the following components:
 - `JSON_Beautify.ahk` by [Joe DF](https://joedf.ahkscript.org/about.html), licenced under the [MIT License](https://opensource.org/licenses/MIT). For more information see the top of the [source](ISMOMISM.ahk).
 - The icon/logo is copyrighted: (C) Iconic Hub, licensed free for commercial use. See the
 [Iconfinder.com file page](https://www.iconfinder.com/icons/1886938/files_folder_search_storage_icon).
+
+## See also
+
+This project was created as part of NANY 2020 (*New Apps for the New Year*), hosted by [DonationCoder.com](https://www.donationcoder.com/). For more information see [this forum topic](https://www.donationcoder.com/forum/index.php?topic=49299).
