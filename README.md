@@ -1,5 +1,5 @@
 # ISMONISM
-<img align="left" src="resources/Icon.png" alt="ISMONISM logo" height="40px" style="margin-top: 5px">
+<img align="left" src="raw/master/Resources/Icon.png" alt="ISMONISM logo" height="40px" style="margin-top: 5px">
 
 ISMONISM (*In Start Menu Or Not In Start Menu*) is an utility for scanning folders recursively, to find files for which there is no matching shortcut in (a subfolder of) any user-defined folder.
 
@@ -8,13 +8,13 @@ This utility was originally created with the Windows Start Menu in mind. By defa
 It has the ability to create shortcuts of found items in a user configurable 'personal shortcut folder' (By default a subfolder of the Start Menu).
 
 ## Screenshot
-![ISMONISM screenshot](resources/Screenshot-01.png)
+![ISMONISM screenshot](raw/master/Resources/Screenshot-01.png)
 
 ## Using the source code
 
 The script is created with [AutoHotkey](https://www.autohotkey.com/download/) 1.1.32.00 Unicode.
 
-Download `ISMONISM.ahk` from the root of this repository AND place the following scripts in a [Library](https://www.autohotkey.com/docs/Functions.htm#lib):
+In order to launch  `ISMONISM.ahk` from the root of this repository the following scripts are needed in a [Library](https://www.autohotkey.com/docs/Functions.htm#lib):
 - `JSON_ToObj.ahk` by Vxe from [here](https://github.com/Jim-VxE/AHK-Lib-JSON_ToObj).
 - `JSON_Beautify.ahk` by Joe DF from [here](https://github.com/joedf/JSON_BnU).
 
