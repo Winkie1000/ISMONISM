@@ -1,5 +1,5 @@
 # ISMONISM
-<img align="left" src="raw/master/Resources/Icon.png" alt="ISMONISM logo" height="40px" style="margin-top: 5px">
+<img align="left" src="https://raw.githubusercontent.com/Winkie1000/ISMONISM/master/Resources/Icon.png" alt="ISMONISM logo" height="40px" style="margin-top: 5px">
 
 ISMONISM (*In Start Menu Or Not In Start Menu*) is an utility for scanning folders recursively, to find files for which there is no matching shortcut in (a subfolder of) any user-defined folder.
 
@@ -8,7 +8,7 @@ This utility was originally created with the Windows Start Menu in mind. By defa
 It has the ability to create shortcuts of found items in a user configurable 'personal shortcut folder' (By default a subfolder of the Start Menu).
 
 ## Screenshot
-![ISMONISM screenshot](raw/master/Resources/Screenshot-01.png)
+![ISMONISM screenshot](https://raw.githubusercontent.com/Winkie1000/ISMONISM/master/Resources/Screenshot-01.png)
 
 ## Using the source code
 
