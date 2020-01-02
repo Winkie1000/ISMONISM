@@ -140,8 +140,7 @@ For index, sDir in oSettings.SearchDirs
 		{
 			If Not HasVal( aMenuItems, A_LoopFileLongPath )
 			{
-				LV_Add( "", , , FileGetName( A_LoopFileLongPath ), A_LoopFileLongPath )
-				LV_ModifyCol(3, "Sort")
+				LV_Add( "", "", "", FileGetName( A_LoopFileLongPath ), A_LoopFileLongPath )
 			}
 		}
 	}
@@ -154,7 +153,7 @@ Return
 SearchComplete:
 	LV_ModifyCol( )
 	LV_ModifyCol( 2, 0)
-	LV_ModifyCol( 3, 200 )
+	LV_ModifyCol( 3, "200 Sort" )
 	WinSet, Enable, , % "ahk_id " . hMainList1
 	Menu, MenuBar, Enable, 2&
 	bSearchComplete := True
@@ -304,7 +303,7 @@ SettingsDefaultPersonalFolder:
 Return
 
 SettingsDefaultSearchEngine:
-	ControlSetText, , "https://www.duckduckgo.com/?q=", % "ahk_id " hPersonalFolder
+	ControlSetText, , https://www.duckduckgo.com/?q=, % "ahk_id " hSearchEngine
 Return
 
 SettingsListAdd:
@@ -651,14 +650,18 @@ MainListSortChecked()
 
 GetSettingsFromFile()
 {
+	Global bUserSettings
 	If FileExist( "ISMONISM.json" )
 	{
-
+	
 		s := FileRead( "ISMONISM.json" )
 		o := JSON_ToObj( s )
 	}
 	Else
+	{
 		o := SetDefaultSettings()
+		bUserSettings := True
+	}
 	Return o
 }
 
