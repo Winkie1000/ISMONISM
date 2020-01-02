@@ -102,7 +102,7 @@ Menu, MenuBar, Add, Help, :HelpMenu
 Gui, MainGui: New, +Resize +MinSize600x250 +LabelMainGui
 Gui, MainGui: Margin, 10, 10
 Gui, MainGui: Menu, MenuBar
-Gui, MainGui: Add, ListView, w800 h600 AltSubmit Checked Disabled Grid Sort gMainListEvent hwndhMainList1 vcMainList1, |Cnum|Program name|Program path
+Gui, MainGui: Add, ListView, w800 h600 AltSubmit Checked Disabled Grid gMainListEvent hwndhMainList1 vcMainList1, |Cnum|Program name|Program path
 Gui, MainGui: Add, Button, ym w150 Disabled gCreateShortcuts hwndhButtonShortcut, Create shortcut(s)`n for checked items
 Gui, MainGui: Add, Button, xp y+m wp Disabled gCheckedToClipboard hwndhButtonClipboard, Copy checked path(s)`n to clipboard
 Gui, MainGui: Add, StatusBar, h22
