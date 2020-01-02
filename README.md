@@ -10,6 +10,9 @@ It has the ability to create shortcuts of found items in a user configurable 'pe
 ## Screenshot
 ![ISMONISM screenshot](https://raw.githubusercontent.com/Winkie1000/ISMONISM/master/Resources/Screenshot-01.png)
 
+### Settings
+![ISMONISM settings screenshot](https://raw.githubusercontent.com/Winkie1000/ISMONISM/master/Resources/Screenshot-02.png)
+
 ## Using the source code
 
 The script is created with [AutoHotkey](https://www.autohotkey.com/download/) 1.1.32.00 Unicode.
@@ -18,10 +21,7 @@ In order to launch  `ISMONISM.ahk` from the root of this repository the followin
 - `JSON_ToObj.ahk` by Vxe from [here](https://github.com/Jim-VxE/AHK-Lib-JSON_ToObj).
 - `JSON_Beautify.ahk` by Joe DF from [here](https://github.com/joedf/JSON_BnU).
 
-## To do
-- [ ] Add settings dialog(s) + save settings file only if settings are changed, not on every ExitApp.
-
-## License and  credits
+## License and credits
 
 ISMONISM is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
@@ -33,6 +33,8 @@ This script/application uses the following components:
 - `JSON_Beautify.ahk` by [Joe DF](https://joedf.ahkscript.org/about.html), licenced under the [MIT License](https://opensource.org/licenses/MIT). For more information see the top of the [source](ISMOMISM.ahk).
 - The icon/logo is copyrighted: (C) Iconic Hub, licensed free for commercial use. See the
 [Iconfinder.com file page](https://www.iconfinder.com/icons/1886938/files_folder_search_storage_icon).
+- `HasVal()` by [jNizM](https://github.com/jNizM) & [Lexicos](https://github.com/Lexikos), unlicensed open source code from [here](https://github.com/jNizM/AHK_Scripts/blob/master/src/arrays/HasVal.ahk). For more information see the corresponding [AutoHotkey.com Forum post](https://www.autohotkey.com/boards/viewtopic.php?p=110388#p110388).
+- `BetterBox()` by wolf_II, unlicensed open source code from [here](https://www.autohotkey.com/boards/viewtopic.php?p=253712).
 
 ## See also
 
