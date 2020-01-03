@@ -146,6 +146,7 @@ For index, sDir in oSettings.SearchDirs
 	}
 }
 
+bSearchComplete := True
 Gosub, SearchComplete
 
 Return
@@ -387,6 +388,9 @@ SettingsGuiSet:
 	a := ""
 	v := ""
 	bUserSettings := True
+	Gui, MainGui: Default
+	SB_SetText( bUserCancel ? FormatInteger( LV_GetCount( ) ) . " item(s) found which are not in any shortcut folder (search aborted).          Personal shortcut folder: " . oSettings.PersonalFolder
+	: FormatInteger( LV_GetCount( ) ) . " item(s) found which are not in any shortcut folder.          Personal shortcut folder: " . oSettings.PersonalFolder )
 	GoSub, SettingsGuiClose
 Return
 
@@ -551,7 +555,8 @@ MainGuiSize:
 Return
 
 MainGuiEscape:
-	bUserCancel := True
+	If Not bSearchComplete
+		bUserCancel := True
 Return
 
 MainGuiReload:
