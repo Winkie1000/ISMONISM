@@ -195,8 +195,8 @@ Return
 MainGuiContextMenu:
 	If ( A_GuiControl = "cMainList1" and bSearchComplete )
 	{
-		sFocusedName := GetListViewFocused( 1 )
-		sFocusedPath := GetListViewFocused( 2 )
+		sFocusedName := GetListViewFocused( 3 )
+		sFocusedPath := GetListViewFocused( 4 )
 		sSelectedPaths := GetMainListPaths( )
 		Menu, ListViewMenu, Delete, 4&
 		Menu, ListViewMenu, Add, % "Search online for " . sFocusedName, FocusedToInternet
@@ -430,7 +430,7 @@ GoAbout:
 	Gui, AboutGui: Add, Text, xm  Section, Version:
 	Gui, AboutGui: Add, Text, xs, Creator:
 	Gui, AboutGui: Add, Text, xs, License:
-	Gui, AboutGui: Add, Text, ys Section, 0.3.0   (2020-01-02)
+	Gui, AboutGui: Add, Text, ys Section, 0.3.1   (2020-01-03)
 	Gui, AboutGui: Add, Text, xs, Winkie
 	Gui, AboutGui: Add, Text, xs, see below for the license of ISMONISM and used components
 	Gui, AboutGui: Add, Tab3, xm AltSubmit viAboutTab, ISMONISM|JSON_ToObj()|JSON_Beautify()|Icon
@@ -585,9 +585,9 @@ MainListToShortcuts( sPersonalFolder )
 			i := LV_GetNext( i, "C" )
 			If not i
 				Break
-			LV_GetText( sName, i, 1 )
+			LV_GetText( sName, i, 3 )
 			sName := FileGetBaseName( sName )
-			LV_GetText( sPath, i, 2 )
+			LV_GetText( sPath, i, 4 )
 			If Not InStr( FileExist( sPersonalFolder ), "D" )
 				FileCreateDir, % sPersonalFolder
 			FileCreateShortCut, % sPath, % sPersonalFolder . "\" . sName . ".lnk"
@@ -609,7 +609,7 @@ GetMainListPaths( sRowType := "" )
 		i := LV_GetNext( i, sRowType )
 		If not i
 			Break
-		LV_GetText( Txt, i, 2 )
+		LV_GetText( Txt, i, 4 )
 		If ( A_Index != 1 )
 			v .= "`n"
 		v .= Txt
