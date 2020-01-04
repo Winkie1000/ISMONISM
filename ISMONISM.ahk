@@ -78,6 +78,7 @@ SOFTWARE.
 #NoTrayIcon
 #SingleInstance, Force
 SetControlDelay, -1
+SetWorkingDir, % A_ScriptDir
 
 If ( A_IsCompiled and A_Is64bitOS ) ; Compiled is 32-bit
 	EnvGet, sSysProgramFiles, ProgramW6432
@@ -91,78 +92,118 @@ Menu, ListViewMenu, Add, Copy selected path(s) to clipboard, SelectedToClipboard
 Menu, ListViewMenu, Add,
 Menu, ListViewMenu, Add, Show focused path in Windows Explorer, FocusedToExplorer
 Menu, ListViewMenu, Add, Search online for focused name, FocusedToInternet
-Menu, FileMenu, Add, Save settings and restart, MainGuiSaveReload
-Menu, FileMenu, Add, Restart without saving settings, MainGuiReload
-Menu, FileMenu, Add, Exit, MainGuiClose
-Menu, HelpMenu, Add, About, GoAbout
+Menu, FileMenu, Add, Start search`tF5, Dosearch
+Menu, FileMenu, Add,
+Menu, FileMenu, Add, Restart without saving settings to file`tCtrl+R, MainGuiReload
+Menu, FileMenu, Add, Exit`tAlt+F4, MainGuiClose
+Menu, HelpMenu, Add, About`tF1, GoAbout
 Menu, MenuBar, Add, File, :FileMenu
-Menu, MenuBar, Add, Settings, GoUserSettings
-Menu, MenuBar, Disable, 2&
+Menu, SettingsMenu, Add, Change settings`tF9, GoUserSettings
+Menu, SettingsMenu, Add, Save settings to file`tF12, SaveSettings
+Menu, MenuBar, Add, Settings, :SettingsMenu
 Menu, MenuBar, Add, Help, :HelpMenu
-Gui, MainGui: New, +Resize +MinSize600x250 +LabelMainGui
+Gui, MainGui: New, +Resize +MinSize650x400 +LabelMainGui
 Gui, MainGui: Margin, 10, 10
 Gui, MainGui: Menu, MenuBar
-Gui, MainGui: Add, ListView, w800 h600 AltSubmit Checked Disabled Grid gMainListEvent hwndhMainList1 vcMainList1, |Cnum|Program name|Program path
-Gui, MainGui: Add, Button, ym w150 Disabled gCreateShortcuts hwndhButtonShortcut, Create shortcut(s)`n for checked items
+Gui, MainGui: Add, ListView, w780 h600 AltSubmit Checked Disabled Grid gMainListEvent hwndhMainList1 vcMainList1, |Cnum|Program name|Program path
+Gui, MainGui: Font, Bold
+Gui, MainGui: Add, Button, ym w170 r2 gDoSearch hwndhButtonSearch, Start search
+Gui, MainGui: Font, Normal
+Gui, MainGui: Add, Text, xp y+80 wp h1 Border hwndhBorder
+Gui, MainGui: Add, Text, xp y+20 wp hwndhTextCaption, Personal shortcut folder:
+Gui, MainGui: Font, s8, Verdana
+Gui, MainGui: Font, s10, Tahoma
+Gui, MainGui: Font, s10, Consolas
+Gui, MainGui: Add, Text, xp y+m wp r6 hwndhTextPersonalFolder, % StrReplace( oSettings.PersonalFolder, "\", " \ " )
+Gui, MainGui: Font,
+Gui, MainGui: Add, Button, xp y+20 wp Disabled gCreateShortcuts hwndhButtonShortcut, Create shortcut(s)`n for checked items
 Gui, MainGui: Add, Button, xp y+m wp Disabled gCheckedToClipboard hwndhButtonClipboard, Copy checked path(s)`n to clipboard
 Gui, MainGui: Add, StatusBar, h22
 Gui, MainGui: Show, Center, ISMONISM
 WinGet, hMainGui, ID, A
-LV_ModifyCol( 2, 0)
 LV_ModifyCol( 1, "NoSort" )
+LV_ModifyCol( 2, 0)
 
-aMenuItems := Array()
-SB_SetText( "Scanning shortcut folder(s).    (Press ESC to abort scanning)")
-For index, sDir in oSettings.ShortcutDirs
+GroupAdd, ISMONISM_Main, % "ahk_id " . hMainGui
+If oSettings.MaximizeAtLaunch
+	WinMaximize, % "ahk_id " . hMainGui
+
+If oSettings.SearchAtLaunch
+	Gosub, DoSearch
+Else
 {
-	Loop, Files, % sDir . "\*.lnk", R
-	{
-		If bUserCancel
-		{
-			Gosub, SearchComplete
-			Return
-		}
-		aMenuItems.Push( FileGetShotcutPath( A_LoopFileLongPath ) )
-	}
+	LV_ModifyCol( 3, 200)
+	LV_ModifyCol( 4, 200)
+	SB_SetText( "Ready.")
 }
+Return
 
-For index, sDir in oSettings.SearchDirs
-{
-	SB_SetText( "Scanning program folder: " . sDir . "    (Press ESC to abort scanning)" )
-	Loop, Files, % sDir . "\*.*", R
+#IfWinActive ahk_group ISMONISM_Main
+
+^F5::
+DoSearch:
+	Menu, MenuBar, Disable, 2&
+	WinSet, Disable, , % "ahk_id " hButtonSearch
+	WinSet, Disable, , % "ahk_id " . hMainList1
+	bIsSearching := True
+	LV_Delete( )
+	aMenuItems := Array()
+	For index, sDir in oSettings.ShortcutDirs
 	{
-		If bUserCancel
+		SB_SetText( "Scanning shortcut folder:" . sDir . ".    (Press ESC to abort scanning)")
+		Loop, Files, % sDir . "\*.lnk", R
 		{
-			Gosub, SearchComplete
-			Return
-		}
-		If A_LoopFileExt and InStr( oSettings.FileTypes, A_LoopFileExt, , 1 )
-		{
-			If Not HasVal( aMenuItems, A_LoopFileLongPath )
+			If bUserCancel
 			{
-				LV_Add( "", "", "", FileGetName( A_LoopFileLongPath ), A_LoopFileLongPath )
+				Gosub, SearchComplete
+				Return
+			}
+			aMenuItems.Push( FileGetShotcutPath( A_LoopFileLongPath ) )
+		}
+	}
+
+	For index, sDir in oSettings.SearchDirs
+	{
+		SB_SetText( "Scanning program folder: " . sDir . ".    (Press ESC to abort scanning)" )
+		Loop, Files, % sDir . "\*.*", R
+		{
+			If bUserCancel
+			{
+				Gosub, SearchComplete
+				Return
+			}
+			If A_LoopFileExt and HasVal( oSettings.FileTypes, A_LoopFileExt )
+			{
+				If Not HasVal( aMenuItems, A_LoopFileLongPath )
+				{
+					LV_Add( "", "", "", FileGetName( A_LoopFileLongPath ), A_LoopFileLongPath )
+				}
 			}
 		}
 	}
-}
-
-bSearchComplete := True
-Gosub, SearchComplete
-
+	Gosub, SearchComplete
 Return
 
 SearchComplete:
-	LV_ModifyCol( )
-	LV_ModifyCol( 2, 0)
-	LV_ModifyCol( 3, "200 Sort" )
+	If LV_GetCount()
+	{
+		LV_ModifyCol( 2, 0)
+		LV_ModifyCol( 3, "Sort" )
+		LV_ModifyCol( 3 )
+		LV_ModifyCol( 4 )
+	}
 	WinSet, Enable, , % "ahk_id " . hMainList1
 	Menu, MenuBar, Enable, 2&
-	bSearchComplete := True
-	SB_SetText( bUserCancel ? FormatInteger( LV_GetCount( ) ) . " item(s) found which are not in any shortcut folder (search aborted).          Personal shortcut folder: " . oSettings.PersonalFolder
-		: FormatInteger( LV_GetCount( ) ) . " item(s) found which are not in any shortcut folder.          Personal shortcut folder: " . oSettings.PersonalFolder )
+	ControlSetText, , Start search, % "ahk_id " hButtonSearch
+	bIsSearching := False
+		SB_SetText( bUserCancel 
+		? FormatInteger( LV_GetCount( ) ) . " item(s) found which are not in any shortcut folder (search aborted)." : FormatInteger( LV_GetCount( ) ) . " item(s) found which are not in any shortcut folder." )
+	WinSet, Enable, , % "ahk_id " hButtonSearch
+	bUserCancel := False
 	aMenuItems := ""
 	sDir := ""
 	index := ""
+	ControlFocus, , % "ahk_id " . hMainList1
 Return
 
 CreateShortcuts:
@@ -194,7 +235,7 @@ MainListEvent:
 Return
 
 MainGuiContextMenu:
-	If ( A_GuiControl = "cMainList1" and bSearchComplete )
+	If ( A_GuiControl = "cMainList1" and not bIsSearching and LV_GetCount() )
 	{
 		sFocusedName := GetListViewFocused( 3 )
 		sFocusedPath := GetListViewFocused( 4 )
@@ -226,23 +267,29 @@ FocusedToInternet:
 	sSelectedPaths := ""
 Return
 
+!F9::
 GoUserSettings:
+	If bIsSearching
+		Return
 	bUserProgramFiles := False
 	bUserStartMenu := False
+	
+	bMaximizeAtLaunch := oSettings.MaximizeAtLaunch ? oSettings.MaximizeAtLaunch : 0 ; v0.3.1 -> v0.4.0
+	bSearchAtLaunch := oSettings.SearchAtLaunch ? oSettings.SearchAtLaunch : 0
 	
 	Gui, MainGui: +Disabled
 	Gui, SettingsGui: New, -Resize +Toolwindow +LabelSettingsGui +OwnerMainGui
 	Gui, SettingsGui: Default
 	Gui, SettingsGui: Margin, 15, 15
-	Gui, SettingsGui: Add, Tab3, AltSubmit viSettingsTab, Main|Search folder(s)|Shorcut folder(s)|File extension(s)
+	Gui, SettingsGui: Add, Tab3, AltSubmit viSettingsTab, Main|Search folder(s)|Shorcut folder(s)|File extension(s)|Search engine
 	Gui, SettingsGui: Tab, 1
-	Gui, SettingsGui: Add, Text, x+15 w500, Set a folder where shortcuts should be placed:
+	Gui, SettingsGui: Add, Text, x+15, When ISMONISM is launched:
+	Gui, SettingsGui: Add, Checkbox, xp yp+35 vbMaximizeAtLaunch Checked%bMaximizeAtLaunch%, Start with a maximized window
+	Gui, SettingsGui: Add, Checkbox, xp yp+35 vbSearchAtLaunch Checked%bSearchAtLaunch%, Start the search
+	Gui, SettingsGui: Add, Text, xs+15 yp+68 w500, Set a folder where shortcuts should be placed:
 	Gui, SettingsGui: Add, Edit, xp yp+35 w500 r1 vsPersonalFolder hwndhPersonalFolder, % oSettings.PersonalFolder 
 	Gui, SettingsGui: Add, Button, xp+530 yp-1 w120 gSettingsGetPersonalFolder, Select folder
 	Gui, SettingsGui: Add, Button, xs+15 yp+38 w120 gSettingsDefaultPersonalFolder, Set default folder
-	Gui, SettingsGui: Add, Text, xs+15 yp+68 w500, Set a search engine (the program name will be appended):
-	Gui, SettingsGui: Add, Edit, xp yp+35 w500 r1 vsSearchEngine hwndhSearchEngine, % oSettings.SearchURL
-	Gui, SettingsGui: Add, Button, xs+15 yp+38 w120 gSettingsDefaultSearchEngine, Set default`nsearch engine
 	Gui, SettingsGui: Tab, 2
 	Gui, SettingsGui: Add, Text, x+15 w500, Set folder(s) where should be searched for 'missing' items:
 	Gui, SettingsGui: Add, Checkbox, xp yp+35 vbUserProgramFiles hwndhUserProgramFiles, % A_Is64bitOS ? "   " . sSysProgramFiles . "`n   " . sSysProgramFiles64 : "   " . sSysProgramFiles
@@ -280,13 +327,19 @@ GoUserSettings:
 	Gui, SettingsGui: Tab, 4
 	Gui, SettingsGui: Add, Text, x+15 w500, Set file extension(s) which should be searched for:
 	Gui, SettingsGui: Add, ListView, xp yp+35 w500 h200 AltSubmit Grid -ReadOnly hwndhSettingsListTab4, File extension
-	Loop, Parse, % oSettings.FileTypes, `,
-		LV_Add( "", A_LoopField )
+	For index, sExt in oSettings.FileTypes
+	{
+		LV_Add( "", sExt )
+	}
 	Gui, SettingsGui: Add, Button, xp+530 yp w120 Section gSettingsListAdd, Add
 	Gui, SettingsGui: Add, Button, xs wp gSettingsListEdit, Edit focused
 	Gui, SettingsGui: Add, Button, xs wp gSettingsListDelete, Remove selected
+	Gui, SettingsGui: Tab, 5
+	Gui, SettingsGui: Add, Text, x+15 w500, Set a search engine (the program name will be appended):
+	Gui, SettingsGui: Add, Edit, xp yp+35 w500 r1 vsSearchEngine hwndhSearchEngine, % oSettings.SearchURL
+	Gui, SettingsGui: Add, Button, xp yp+38 w120 gSettingsDefaultSearchEngine, Set default`nsearch engine
 	Gui, SettingsGui: Tab
-	Gui, SettingsGui: Add, Button, xm+560 w120 gSettingsGuiSet, &OK
+	Gui, SettingsGui: Add, Button, xm+560 w120 gSettingsGuiSet, &Apply settings
 	Gui, SettingsGui: Show, Center, ISMONISM settings
 	GuiControl, , % hUserProgramFiles, % bUserProgramFiles
 	GuiControl, , % hUserStartMenu, % bUserStartMenu
@@ -296,7 +349,7 @@ SettingsGetPersonalFolder:
 	ControlGetText, sPersonalFolder, , % "ahk_id " hPersonalFolder
 	sPersonalFolder := FileSelectFolder( )
 	If sPersonalFolder
-		ControlSetText, , % sPersonalFolder , % "ahk_id " hPersonalFolder
+		ControlSetText, , % sPersonalFolder, % "ahk_id " hPersonalFolder
 Return
 
 SettingsDefaultPersonalFolder:
@@ -331,11 +384,7 @@ SettingsListEdit:
 	If iSettingsTab = 4
 		SettingsEditListExt( )
 	Else
-	{
-		sDir := FileSelectFolder( )
-		If sDir
-			LV_Add( "", sDir )
-	}
+		SettingsEditListFolder( iSettingsTab )
 Return
 
 SettingsListDelete:
@@ -347,6 +396,8 @@ Return
 SettingsGuiSet:
 	Gui, SettingsGui: Submit
 	sPersonalFolder := RegExReplace( sPersonalFolder, "\\$" )
+	oSettings.MaximizeAtLaunch := bMaximizeAtLaunch
+	oSettings.SearchAtLaunch := bSearchAtLaunch
 	oSettings.PersonalFolder := sPersonalFolder
 	oSettings.SearchURL := sSearchEngine
 	a := Array()
@@ -376,21 +427,18 @@ SettingsGuiSet:
 		a.Push( A_StartMenuCommon )
 	}
 	oSettings.ShortCutDirs := a
+	a := Array()
 	Gui, SettingsGui: ListView, % hSettingsListTab4
 	Loop, % LV_GetCount()
 	{
 		LV_GetText( sStr, A_Index )
-		If A_Index != 1
-			v .= ","
-		v .= sStr
+		a.Push( sStr )
 	}	
-	oSettings.FileTypes := v
+	oSettings.FileTypes := a
 	a := ""
-	v := ""
-	bUserSettings := True
+	bSettingNeedsSave := True
 	Gui, MainGui: Default
-	SB_SetText( bUserCancel ? FormatInteger( LV_GetCount( ) ) . " item(s) found which are not in any shortcut folder (search aborted).          Personal shortcut folder: " . oSettings.PersonalFolder
-	: FormatInteger( LV_GetCount( ) ) . " item(s) found which are not in any shortcut folder.          Personal shortcut folder: " . oSettings.PersonalFolder )
+	ControlSetText, , % StrReplace( oSettings.PersonalFolder, "\", " \ " ), % "ahk_id " . hTextPersonalFolder
 	GoSub, SettingsGuiClose
 Return
 
@@ -400,11 +448,14 @@ SettingsGuiClose:
 	Gui, MainGui: Default
 	Gui, SettingsGui: Destroy
 	WinActivate, % "ahk_id " . hMainGui
+	bMaximizeAtLaunch := ""
+	bSearchAtLaunch := ""
 	sPersonalFolder := ""
 	sSearchEngine := ""
 	iSettingsTab := ""
 	index := ""
 	sDir := ""
+	sExt := ""
 	sStr := ""
 	hPersonalFolder := ""
 	hSearchEngine := ""
@@ -415,6 +466,7 @@ SettingsGuiClose:
 	hUserStartMenu := ""
 Return
 
+F1::
 GoAbout:
 	Gui, MainGui: +Disabled
 	Gui, AboutGui: New, +LabelAboutGui +OwnerMainGui -SysMenu
@@ -434,7 +486,7 @@ GoAbout:
 	Gui, AboutGui: Add, Text, xm  Section, Version:
 	Gui, AboutGui: Add, Text, xs, Creator:
 	Gui, AboutGui: Add, Text, xs, License:
-	Gui, AboutGui: Add, Text, ys Section, 0.3.1   (2020-01-03)
+	Gui, AboutGui: Add, Text, ys Section, 0.4.0   (2020-01-04)
 	Gui, AboutGui: Add, Text, xs, Winkie
 	Gui, AboutGui: Add, Text, xs, see below for the license of ISMONISM and used components
 	Gui, AboutGui: Add, Tab3, xm AltSubmit viAboutTab, ISMONISM|JSON_ToObj()|JSON_Beautify()|Icon
@@ -548,37 +600,36 @@ AboutGuiEscape:
 Return
 
 MainGuiSize:
-	Critical, Off
-	Sleep, -1
 	AutoXYWH( "wh", hMainList1 )
-	AutoXYWH( "x", hButtonShortcut, hButtonClipboard )
+	AutoXYWH( "x", hButtonSearch, hBorder, hTextCaption, hTextPersonalFolder, hButtonShortcut, hButtonClipboard )
 Return
 
-MainGuiEscape:
-	If Not bSearchComplete
+ESC::
+	If bIsSearching
 		bUserCancel := True
 Return
 
-MainGuiReload:
-	Reload
-Return
-
-MainGuiSaveReload:
-	Gosub, SaveSettings
-	Reload
-Return
-
-MainGuiClose:
-	If bUserSettings
-		Gosub, SaveSettings
-	ExitApp
-Return
-
+^F12::
 SaveSettings:
 	oFile := FileOpen( "ISMONISM.json", "w" )
 	oFile.Write( JSON_Beautify( oSettings ) )
 	oFile.Close( )
+	bSettingNeedsSave := False
 Return
+
+^R::
+MainGuiReload:
+	Reload
+Return
+
+!F4::
+MainGuiClose:
+	If bSettingNeedsSave
+		Gosub, SaveSettings
+	ExitApp
+Return
+
+#IfWinActive
 
 MainListToShortcuts( sPersonalFolder )
 {
@@ -655,17 +706,23 @@ MainListSortChecked()
 
 GetSettingsFromFile()
 {
-	Global bUserSettings
+	Global bSettingNeedsSave
 	If FileExist( "ISMONISM.json" )
 	{
 	
 		s := FileRead( "ISMONISM.json" )
 		o := JSON_ToObj( s )
+		v := o.FileTypes
+		If Not IsObject( v ) ; v0.3.1 -> v0.4.0
+		{
+			a := StrSplit( v, "," )
+			o.FileTypes := a
+		}
 	}
 	Else
 	{
 		o := SetDefaultSettings()
-		bUserSettings := True
+		bSettingNeedsSave := True
 	}
 	Return o
 }
@@ -673,9 +730,11 @@ GetSettingsFromFile()
 SetDefaultSettings()
 {
 	o := Object()
-	o.FileTypes := "exe"
+	o.FileTypes := [ "exe" ]
+	o.MaximizeAtLaunch := False
 	o.PersonalFolder := A_StartMenu . "\My shortcuts"
 	o.SearchDirs := [ "C:\Program Files", "C:\Program Files (x86)" ]
+	o.SearchAtLaunch := False
 	o.SearchURL := "https://www.duckduckgo.com/?q="
 	o.ShortcutDirs := [ A_StartMenu, A_StartMenuCommon ]
 	Return o
@@ -693,16 +752,35 @@ SettingsListDelItem()
 
 SettingsEditListExt(  )
 {
-	i := LV_GetNext( 0, "F" )
-	If i < 1
-		i := 1
-	LV_GetText( Txt, i)
-	If Txt
-		Txt := BetterBox( "Edit value", , Txt )
-	If Txt
+	If LV_GetCount( )
 	{
-		Gui, SettingsGui: Default
-		LV_Modify( i, "Col", Txt )
+		i := LV_GetNext( 0, "F" )
+		If i >= 1
+		{
+			LV_GetText( Txt, i)
+			If Txt
+				Txt := BetterBox( "Edit value", , Txt )
+			If Txt
+			{
+				Gui, SettingsGui: Default
+				LV_Modify( i, "Col", Txt )
+			}
+		}
+	}
+}
+
+SettingsEditListFolder( iSettingsTab )
+{
+	Gui, SettingsGui: ListView, % hSettingsListTab%iSettingsTab%
+	If LV_GetCount( )
+	{
+		i := LV_GetNext( 0, "F" )
+		If i >= 1
+		{
+			sDir := FileSelectFolder( )
+			If sDir
+				LV_Modify( i, "Col", sDir )
+		}
 	}
 }
 

@@ -20,6 +20,7 @@ The script is created with [AutoHotkey](https://www.autohotkey.com/download/) 1.
 In order to launch  `ISMONISM.ahk` from the root of this repository the following scripts are needed in a [Library](https://www.autohotkey.com/docs/Functions.htm#lib):
 - `JSON_ToObj.ahk` by Vxe from [here](https://github.com/Jim-VxE/AHK-Lib-JSON_ToObj).
 - `JSON_Beautify.ahk` by Joe DF from [here](https://github.com/joedf/JSON_BnU).
+- `AutoXYWH.ahk` by tmplinshi & toralf from [here](https://www.autohotkey.com/boards/viewtopic.php?f=6&t=1079).
 
 ## License and credits
 
@@ -34,6 +35,7 @@ This script/application uses the following components:
 - The icon/logo is copyrighted: (C) Iconic Hub, licensed free for commercial use. See the
 [Iconfinder.com file page](https://www.iconfinder.com/icons/1886938/files_folder_search_storage_icon).
 - `HasVal()` by [jNizM](https://github.com/jNizM) & [Lexicos](https://github.com/Lexikos), unlicensed open source code from [here](https://github.com/jNizM/AHK_Scripts/blob/master/src/arrays/HasVal.ahk). For more information see the corresponding [AutoHotkey.com Forum post](https://www.autohotkey.com/boards/viewtopic.php?p=110388#p110388).
+- `AutoXYWH()` by [tmplinshi](https://github.com/tmplinshi) & [toralf](https://github.com/Toralf-AHK), unlicensed open source code from from [here](https://www.autohotkey.com/boards/viewtopic.php?f=6&t=1079).
 - `BetterBox()` by wolf_II, unlicensed open source code from [here](https://www.autohotkey.com/boards/viewtopic.php?p=253712).
 
 ## See also
